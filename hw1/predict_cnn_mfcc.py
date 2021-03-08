@@ -1,0 +1,76 @@
+import tensorflow as tf
+import numpy as np
+import random
+from tqdm import tqdm
+from pathlib import Path
+
+import argparse
+import tensorflow as tf
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras import Model, optimizers
+from tensorflow.keras.callbacks import ReduceLROnPlateau
+import numpy as np
+import random
+from tqdm import tqdm
+from pathlib import Path
+import time
+
+s_time = time.time()
+def get_data(test_path, feature_dir):
+    test_feature_npy = []
+    test_lines_final = []
+    with open(test_path, 'r') as test_f:
+        test_lines = test_f.readlines()
+        random.shuffle(test_lines)
+        for line in tqdm(test_lines):
+            name = line.strip()
+            file_path = Path(feature_dir+name.split('.')[0]+'.csv')
+            if file_path.is_file():
+                feature = np.genfromtxt(feature_dir+name.split('.')[0]+'.csv',
+                                        delimiter=";", dtype="float")
+                feature = np.expand_dims(feature, -1)
+                test_feature_npy.append(feature)
+                test_lines_final.append(line)
+    return np.asarray(test_feature_npy), np.asarray(test_lines_final)
+
+test_path = args.test_path
+feature_dir = args.feature_dir
+test_examples, test_lines = get_data(test_path, feature_dir)
+
+test_dataset = tf.data.Dataset.from_tensor_slices((test_examples))
+
+BATCH_SIZE = 256
+SHUFFLE_BUFFER_SIZE = 100
+
+
+test_dataset = test_dataset.batch(BATCH_SIZE)
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Conv1D(32, 3, padding="same", activation='relu'),
+    tf.keras.layers.MaxPooling1D(pool_size=2, strides=2),
+    tf.keras.layers.Dropout(0.25),
+    tf.keras.layers.Conv1D(64, 3, padding="same", activation='relu'),
+    tf.keras.layers.MaxPooling1D(pool_size=2, strides=2),
+    tf.keras.layers.Dropout(0.25),
+    tf.keras.layers.Conv1D(128, 3, padding="same", activation='relu'),
+    tf.keras.layers.MaxPooling1D(pool_size=2, strides=2),
+    tf.keras.layers.Dropout(0.25),
+    tf.keras.layers.Conv1D(256, 3, padding="same", activation='relu'),
+    tf.keras.layers.MaxPooling1D(pool_size=2, strides=2),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(512, activation='relu'),
+    tf.keras.layers.Dropout(0.25),
+    tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+
+])
+
+
+
+model.load_weights("./ckpt-0050.ckpt")
+predictions  = model.predict(test_dataset)
+predictions = np.argmax(predictions, axis=1)
+
+with open('test_mfcc.csv', 'w') as out_f:
+    for i in range(np.shape(predictions)[0]):
+        print(test_lines[i].strip().split('.')[0]+','+str(predictions[i]), file=out_f)
