@@ -20,7 +20,7 @@ from sklearn.metrics import confusion_matrix
 parser = argparse.ArgumentParser()
 parser.add_argument("trainval_path") # trainval.csv
 # parser.add_argument("feat_dim", type=int)
-parser.add_argument("feature_dir") # sound_out
+parser.add_argument("feature_dir") # bof
 # parser.add_argument("output_file")
 parser.add_argument("--feat_appendix", default=".csv")
 args = parser.parse_args()
