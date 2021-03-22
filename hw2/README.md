@@ -3,7 +3,7 @@
 In this homework we will perform a video classification task using visual features. The document/code is extended from the baseline repo provided by TAs.
 
 
-## Overirew
+## Overview
 A video-based MED system is composed of mainly three parts: 1) Video pre-processing, 2) video feature extraction, and 3) classification. 
 
 
