@@ -11,6 +11,6 @@ $ python late_fusion.py
 ## Early Fusion
 
 ```
-$ python train_bof_resnext.py ./train.csv ./3dcnn_out_new/ ./surf_bof/
+$ python early_fusion.py ./train.csv ./3dcnn_out_new/ ./surf_bof/
 ```
 
